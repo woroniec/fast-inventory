@@ -24,7 +24,6 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 # ensures users actions are kept separate
 db = scoped_session(sessionmaker(bind=engine))
 
-
 @app.route("/")
 def index():
     if "user" in session:
@@ -75,10 +74,14 @@ def search():
 
     elif request.method == "POST":
         searchKeyword = request.form.get("searchKeyword")
-        return(render_template("results.html"),searchKeyword)
+        searchKeyword = searchKeyword.lower() + '%'
+        #searchKeyword = searchKeyword 
+        queryResults = db.execute(f"SELECT num, description, totalavailableforsale, qtyonorderpo FROM products WHERE num LIKE :searchKeyword OR LOWER(description) LIKE :searchKeyword"
+        , {"searchKeyword":searchKeyword}).fetchall()
+        #return f"<h1>{queryResults}</h1>"
+        return render_template("results.html", results=queryResults)
+        # TODO return time as well to put at top of results
 
-@app.route("/results",methods=["GET"])
-def results(searchKeyword)
 
 
 
