@@ -26,12 +26,7 @@ db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/")
 def index():
-    if "user" in session:
-        user = session["user"]
-        headline = f"Welcome to bookapp {user}"
-    else:
-        headline = "Welcome to the bookapp"
-    return render_template("index.html", headline = headline)
+    pass
 
 @app.route("/login", methods=['POST','GET'])
 def login():
@@ -45,8 +40,6 @@ def login():
         password = request.form.get("pass")
         checkUsername = db.execute("SELECT user_name FROM registered_users WHERE user_name=(:userName)",
                         {"userName":userName}).fetchone()
-
-        #return f"<h1>{userName}</h1>"
 
         if checkUsername == None:           
             flash("Incorrect username or password.")
@@ -73,14 +66,22 @@ def search():
         return(render_template("search.html"))
 
     elif request.method == "POST":
+
         searchKeyword = request.form.get("searchKeyword")
         searchKeyword = searchKeyword.lower() + '%'
-        #searchKeyword = searchKeyword 
+
         queryResults = db.execute(f"SELECT num, description, totalavailableforsale, qtyonorderpo FROM products WHERE num LIKE :searchKeyword OR LOWER(description) LIKE :searchKeyword"
         , {"searchKeyword":searchKeyword}).fetchall()
-        #return f"<h1>{queryResults}</h1>"
-        return render_template("results.html", results=queryResults)
+
+        timeRefreshed = db.execute(f"SELECT to_char(products_update at time zone 'utc' at time zone 'America/Detroit', 'Month DD, YYYY at HH12:MI a.m.') FROM time").fetchone()
+
+        # Clears connection
+        db.remove()
+        
+        return render_template("results.html", results=queryResults, timeRefreshed=timeRefreshed)
+        
         # TODO return time as well to put at top of results
+
 
 
 
