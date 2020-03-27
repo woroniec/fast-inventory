@@ -4,9 +4,10 @@ from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import scoped_session, sessionmaker
+from dotenv import load_dotenv
 import requests
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
@@ -83,6 +84,7 @@ def search():
         # TODO return time as well to put at top of results
 
 
-
+if __name__ == "__main__":
+    application.run(debug=True)
 
 
