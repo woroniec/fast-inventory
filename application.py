@@ -84,9 +84,6 @@ def search():
         
         # TODO return time as well to put at top of results
 
-# Added for launch to AWS
-if __name__ == "__main__":
-    application.debug = True
-    application.run()
+
 
 
