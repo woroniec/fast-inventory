@@ -7,7 +7,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from dotenv import load_dotenv
 import requests
 
-application = app = Flask(__name__)
+app = Flask(__name__)
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
