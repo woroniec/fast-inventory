@@ -7,7 +7,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from dotenv import load_dotenv
 import requests
 
-application = Flask(__name__)
+application = app = Flask(__name__)
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
@@ -25,9 +25,10 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 # ensures users actions are kept separate
 db = scoped_session(sessionmaker(bind=engine))
 
+
 @app.route("/")
 def index():
-    pass
+    return(render_template("login.html"))
 
 @app.route("/login", methods=['POST','GET'])
 def login():
@@ -83,8 +84,9 @@ def search():
         
         # TODO return time as well to put at top of results
 
-
+# Added for launch to AWS
 if __name__ == "__main__":
-    application.run(debug=True)
+    application.debug = True
+    application.run()
 
 
