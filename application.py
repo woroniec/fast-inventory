@@ -1,4 +1,5 @@
 import os
+import psycopg2
 from flask import Flask, session, render_template, request, flash, redirect, url_for, jsonify
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
