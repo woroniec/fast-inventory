@@ -2,7 +2,6 @@ import os
 import psycopg2
 from flask import Flask, session, render_template, request, flash, redirect, url_for, jsonify
 from flask_session import Session
-from flask_login import LoginManager, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -29,13 +28,7 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 # ensures users actions are kept separate
 db = scoped_session(sessionmaker(bind=engine))
 
-login_manager = LoginManager()
-login_manager.init_app(app)
 
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
     
 
 @app.route("/")
