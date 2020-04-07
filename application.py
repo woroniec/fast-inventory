@@ -2,13 +2,16 @@ import os
 import psycopg2
 from flask import Flask, session, render_template, request, flash, redirect, url_for, jsonify
 from flask_session import Session
+from flask_login import LoginManager, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import scoped_session, sessionmaker
 from dotenv import load_dotenv
 import requests
 
+
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY")
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
@@ -26,6 +29,14 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 # ensures users actions are kept separate
 db = scoped_session(sessionmaker(bind=engine))
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+    
 
 @app.route("/")
 def index():
@@ -58,6 +69,7 @@ def login():
                 return render_template("login.html")
             else:
                 session["user"] = userName
+                
                 return redirect(url_for("search"))
                 
     elif request.method == "GET":
@@ -65,8 +77,10 @@ def login():
             
 @app.route("/search", methods=["GET","POST"])
 def search():
-    if request.method == "GET":
-        return(render_template("login.html"))
+    if request.method == "GET" :
+        if 'user' in session:
+            return(render_template("search.html"))
+        return 'You are not logged in.'
 
     elif request.method == "POST":
 
@@ -80,8 +94,11 @@ def search():
 
         # Clears connection
         db.remove()
-        
+
+
         return render_template("results.html", results=queryResults, timeRefreshed=timeRefreshed)
+    else:
+        return(render_template("login.html"))
         
         
 
