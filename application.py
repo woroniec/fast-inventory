@@ -66,7 +66,7 @@ def login():
 @app.route("/search", methods=["GET","POST"])
 def search():
     if request.method == "GET":
-        return(render_template("search.html"))
+        return(render_template("login.html"))
 
     elif request.method == "POST":
 
@@ -83,8 +83,7 @@ def search():
         
         return render_template("results.html", results=queryResults, timeRefreshed=timeRefreshed)
         
-        # TODO return time as well to put at top of results
-
+        
 
 
 
