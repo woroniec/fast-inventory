@@ -2,11 +2,11 @@ import os
 import psycopg2
 from flask import Flask, session, render_template, request, flash, redirect, url_for, jsonify
 from flask_session import Session
-from flask_login import LoginManager, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import scoped_session, sessionmaker
 from dotenv import load_dotenv
+from datetime import datetime
 import requests
 
 
@@ -29,13 +29,6 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 # ensures users actions are kept separate
 db = scoped_session(sessionmaker(bind=engine))
 
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
     
 
 @app.route("/")
@@ -68,7 +61,7 @@ def login():
                 flash("Incorrect username or password.")
                 return render_template("login.html")
             else:
-                session["user"] = userName
+                userName = session["user"]
                 
                 return redirect(url_for("search"))
                 
@@ -83,24 +76,38 @@ def search():
         return 'You are not logged in.'
 
     elif request.method == "POST":
+        if 'user' not in session:
+            return 'You are not logged in.'
+        else:
+            un = session["user"] 
 
-        searchKeyword = request.form.get("searchKeyword")
-        searchKeyword = searchKeyword.lower() + '%'
+            searchKeywordRough = request.form.get("searchKeyword")
+            # Refined for better querying
+            searchKeyword = searchKeywordRough.lower() + '%'
 
-        queryResults = db.execute(f"SELECT num, description, totalavailableforsale, qtyonorderpo FROM products WHERE num LIKE :searchKeyword OR LOWER(description) LIKE :searchKeyword"
-        , {"searchKeyword":searchKeyword}).fetchall()
+            # Gathers product results
+            queryResults = db.execute(f"SELECT num, description, totalavailableforsale, qtyonorderpo FROM products WHERE num LIKE :searchKeyword OR LOWER(description) LIKE :searchKeyword"
+            , {"searchKeyword":searchKeyword}).fetchall()
 
-        timeRefreshed = db.execute(f"SELECT to_char(products_update at time zone 'utc' at time zone 'America/Detroit', 'Month DD, YYYY at HH12:MI a.m.') FROM time").fetchone()
+            # Gathers time of last refresh, which will be displayed on results page
+            timeRefreshed = db.execute(f"SELECT to_char(products_update at time zone 'utc' at time zone 'America/Detroit', 'Month DD, YYYY at HH12:MI a.m.') FROM time").fetchone()
 
-        # Clears connection
-        db.remove()
+            # Inserts app usage metrics into app_usage table
+            searchTerm = searchKeywordRough.lower()
+            db.execute("INSERT INTO app_usage ( app_user, search_phrase, time_of_search) VALUES (:un,  :searchTerm,  now())",
+                        {"un": un,
+                        "searchTerm":searchTerm,
+                         })
+            db.commit()
+
+            # Clears connection
+            db.remove()
 
 
-        return render_template("results.html", results=queryResults, timeRefreshed=timeRefreshed)
-    else:
-        return(render_template("login.html"))
-        
-        
+            return render_template("results.html", results=queryResults, timeRefreshed=timeRefreshed)
+
+            
+            
 
 
 
