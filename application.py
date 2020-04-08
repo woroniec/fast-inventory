@@ -61,8 +61,7 @@ def login():
                 flash("Incorrect username or password.")
                 return render_template("login.html")
             else:
-                userName = session["user"]
-                
+                session["user"] = userName
                 return redirect(url_for("search"))
                 
     elif request.method == "GET":
