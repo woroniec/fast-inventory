@@ -1,0 +1,1 @@
+"C:\Users\[username]]\AppData\Local\Programs\Python\Python38\python.exe" "C:\Users\[username]\Documents\straitswebtools\inventorywebtool\dataupdates.pyw"
