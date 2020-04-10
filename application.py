@@ -92,6 +92,7 @@ def search():
             searchKeywordRough = request.form.get("searchKeyword")
             # Refined for better querying
             searchKeyword = searchKeywordRough.lower() + '%'
+            log_request(request, (un + ' , ' + searchKeywordRough))
 
             # Gathers product results
             queryResults = db.execute(f"SELECT num, description, totalavailableforsale, qtyonorderpo FROM products WHERE num LIKE :searchKeyword OR LOWER(description) LIKE :searchKeyword"
