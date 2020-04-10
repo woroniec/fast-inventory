@@ -1,6 +1,6 @@
 # fast-inventory - Web Reporting Tool for SLC
 
-Simple, accurate, and easily accessible inventory levels for sales staff. Designed for mobile field use.
+Simple, accurate and easily accessible inventory levels for sales reps. 
 
 ## Table of contents
 * [General Info](#general-info)
