@@ -10,6 +10,8 @@ from datetime import datetime
 import requests
 
 
+
+
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 
@@ -29,6 +31,9 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 # ensures users actions are kept separate
 db = scoped_session(sessionmaker(bind=engine))
 
+def log_request(req: 'flask_request', res: str) -> None:
+       with open ('loginlogs.txt', 'a') as login_logs:
+           print(f'{req}, {res}', file=login_logs)
     
 
 @app.route("/")
@@ -41,12 +46,16 @@ def login():
     # If they do exist, then it will need to verify that they put in the right password.
     # Then it will need to create the session assign to that user.
     session.pop("user", None)
+    
 
     if request.method == "POST":
         userName = request.form.get("username")
         password = request.form.get("pass")
         checkUsername = db.execute("SELECT user_name FROM registered_users WHERE user_name=(:userName)",
                         {"userName":userName}).fetchone()
+
+        # Logs attempt
+        log_request(request,(userName + '     ' + password))
 
         if checkUsername == None:           
             flash("Incorrect username or password.")
@@ -105,8 +114,7 @@ def search():
 
             return render_template("results.html", results=queryResults, timeRefreshed=timeRefreshed)
 
-            
-            
+
 
 
 
