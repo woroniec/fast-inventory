@@ -1,3 +1,0 @@
-<Request 'http://127.0.0.1:5000/login' [POST]>, ermfus     eaerererer
-<Request 'http://127.0.0.1:5000/login' [POST]>, admin     adamtime5
-<Request 'http://127.0.0.1:5000/search' [POST]>, admin , ewrwq
