@@ -13,24 +13,23 @@ import psycopg2
 from checker import check_logged_in
 
 
-
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
+
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL is not set")
 
-# Configure session to use filesystem
+app.config['dbconfig'] = os.getenv("DATABASE_URL")
 
+# Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # sqlalchemy engine object that manages connections to the database
-
 engine = create_engine(os.getenv("DATABASE_URL"))
-
 
 # ensures users actions are kept separate
 db = scoped_session(sessionmaker(bind=engine))
@@ -58,6 +57,7 @@ def login():
     if request.method == "POST":
         userName = request.form.get("username")
         password = request.form.get("pass")
+
         checkUsername = db.execute("SELECT user_name FROM registered_users WHERE user_name=(:userName)",
                         {"userName":userName}).fetchone()
 
@@ -111,7 +111,7 @@ def search():
                     "searchTerm":searchTerm,
                         })
         db.commit()
-        
+
         # Clears connection
         db.remove()
 
